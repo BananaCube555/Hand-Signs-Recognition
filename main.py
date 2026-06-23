@@ -3,32 +3,33 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
+# -------------------------
 # Create detector
-base_options = python.BaseOptions(
-    model_asset_path="hand_landmarker.task"
+# -------------------------
+base_options = python.BaseOptions( 
+    model_asset_path="hand_landmarker.task" # Loads pre trained model that is needed for the script to work "hand_landmarker.task"
 )
 
-options = vision.HandLandmarkerOptions(
-    base_options=base_options,
-    num_hands=2
+options = vision.HandLandmarkerOptions( #Configures the settings
+    base_options=base_options,#Path to the model , ...
+    num_hands=2 # Max hands that the model should detect 
 )
 
-detector = vision.HandLandmarker.create_from_options(options)
+detector = vision.HandLandmarker.create_from_options(options)#Makes an object with the above settings conf
 
-# Load image
-image_path = r"C:\Users\Marios\Downloads\Hand.png"
-mp_image = mp.Image.create_from_file(image_path)
+# -------------------------
+# Webcam (MERGED PART)   Access_Webcam.py
+# -------------------------
 
-# Detect
-result = detector.detect(mp_image)
+cap = cv2.VideoCapture(0) # Opens your default cammera, starts streaming frames
 
-# Load image with OpenCV for drawing
-image = cv2.imread(image_path)
 
-h, w, _ = image.shape
+
+# Skeleton graph points  
+# the connections used for the hands ex. 5 - 8 index finger
 
 connections = [
-    (0,1),(1,2),(2,3),(3,4),
+    (0,1),(1,2),(2,3),(3,4), 
     (0,5),(5,6),(6,7),(7,8),
     (5,9),(9,10),(10,11),(11,12),
     (9,13),(13,14),(14,15),(15,16),
@@ -36,28 +37,64 @@ connections = [
     (0,17)
 ]
 
-for hand in result.hand_landmarks:
 
-    points = []
+cv2.namedWindow("Hand Landmarks", cv2.WINDOW_NORMAL) # Lets you resize the widnow by code or by mouse
+cv2.resizeWindow("Hand Landmarks", 640, 480) # Sets widnow size
 
-    for landmark in hand:
+while True:
+    ret, frame = cap.read() # Ret is Boolean(True/False) that tells us if the frame was succefully captured, frame is the actuall image that contains the pixel data, cap.rad captures the frame
+    if not ret: # Check if the frame was captured if not break the loop(live feed)
+        break 
 
-        x = int(landmark.x * w)
-        y = int(landmark.y * h)
+    # -------------------------
+    # Convert OpenCV → MediaPipe Image
+    # -------------------------
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #We conver from BGR(Blue, green, red) which was the way the model was trained to rgb(red, green, blue) 
 
-        points.append((x, y))
+    mp_image = mp.Image(  #We use mp.Image bc we need to give the ann more than the numpy array of pixels.(Rgb array, format metadata, ...)
+        image_format=mp.ImageFormat.SRGB,  #Doesnt covert or change the pixels in any away just tells mediaPipe how to read the data correcly 
+        data=rgb_frame 
+    )
 
-        cv2.circle(image, (x, y), 5, (0, 255, 0), -1)
+    # -------------------------
+    # Detect hands
+    # -------------------------
+    result = detector.detect(mp_image) # Return the result from the model ex. Detected or not, how many hands were detected...
 
-    for start, end in connections:
-        cv2.line(
-            image,
-            points[start],
-            points[end],
-            (6, 6, 48, 0.45),
-            2
-        )
-image = cv2.resize(image, (1000, 800))
-cv2.imshow("Hand Landmarks", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    h, w, _ = frame.shape # The pos of each fingere come in percentage so using the width and the height of your screen we get how big the image is
+    # -------------------------
+    # Draw landmarks
+    # -------------------------
+    if result.hand_landmarks: # Continue if the ann has detected a hand. result.hand... is a list hand1,hand2,.. so it checks if its empty
+        for hand in result.hand_landmarks: #Loops through each hand 
+
+            points = [] 
+
+            for landmark in hand: # Each landmark is one join (thumb, index finger ,ect)
+
+                x = int(landmark.x * w) # we covert from a percentage to px
+                y = int(landmark.y * h)
+
+                points.append((x, y))
+
+                cv2.circle(frame, (x, y), 5, (0, 255, 0), -1) # Draws a point (x, y) will be the center of it
+
+            for start, end in connections: # Line 31
+                cv2.line(  #Draw a line
+                    frame,
+                    points[start],
+                    points[end],
+                    (255, 0, 0),
+                    2 #You can adjust the thickness
+                )
+
+    # -------------------------
+    # Show
+    # -------------------------
+    cv2.imshow("Hand Landmarks", frame) # Displays current frame
+
+    if cv2.waitKey(1) & 0xFF == ord('q'): # If the key  "q" is pressed it stops the loop
+        break
+
+cap.release() #Closes the webcam
+cv2.destroyAllWindows() #Closes all Cv widnows

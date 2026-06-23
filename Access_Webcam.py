@@ -1,3 +1,6 @@
+# ------------------------THIS SCRIPT IS NOT NEEDED IS NOT NEEDED-------------------#
+
+
 import cv2 as cv
 
 # Open webcam (0 = default camera)
@@ -19,7 +22,7 @@ while True:
     # Display
     cv.imshow('Webcam', gray)
     
-    # Break on 'q' key
+    # Break on q key
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
 
