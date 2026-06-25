@@ -12,7 +12,7 @@ base_options = python.BaseOptions(
 
 options = vision.HandLandmarkerOptions( #Configures the settings
     base_options=base_options,#Path to the model , ...
-    num_hands=2 # Max hands that the model should detect 
+    num_hands=3  # Max hands that the model should detect 
 )
 
 detector = vision.HandLandmarker.create_from_options(options)#Makes an object with the above settings conf
