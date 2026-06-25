@@ -12,6 +12,9 @@ class HandData:
                 break
             self.crHand.append(i)
 
+    def Normalize():
+        pass
+
     def Angles(self):
         pass
 
