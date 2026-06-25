@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+import numpy as np
 
 # -------------------------
 # Create detector
@@ -38,10 +39,14 @@ connections = [
 ]
 
 
+
+
+
 cv2.namedWindow("Hand Landmarks", cv2.WINDOW_NORMAL) # Lets you resize the widnow by code or by mouse
 cv2.resizeWindow("Hand Landmarks", 640, 480) # Sets widnow size
 
 while True:
+
     ret, frame = cap.read() # Ret is Boolean(True/False) that tells us if the frame was succefully captured, frame is the actuall image that contains the pixel data, cap.rad captures the frame
     if not ret: # Check if the frame was captured if not break the loop(live feed)
         break 
@@ -55,7 +60,7 @@ while True:
         image_format=mp.ImageFormat.SRGB,  #Doesnt covert or change the pixels in any away just tells mediaPipe how to read the data correcly 
         data=rgb_frame 
     )
-
+    Allpoints = []
     # -------------------------
     # Detect hands
     # -------------------------
@@ -66,7 +71,9 @@ while True:
     # Draw landmarks
     # -------------------------
     if result.hand_landmarks: # Continue if the ann has detected a hand. result.hand... is a list hand1,hand2,.. so it checks if its empty
-        for hand in result.hand_landmarks: #Loops through each hand 
+        for hand_index, hand in enumerate(result.hand_landmarks): #Loops through each hand 
+            H1points = []
+            H2points = []
 
             points = [] 
 
@@ -75,7 +82,17 @@ while True:
                 x = int(landmark.x * w) # we covert from a percentage to px
                 y = int(landmark.y * h)
 
+
                 points.append((x, y))
+                if  hand_index == 0:
+                    H1points.append(points)
+
+                if hand_index == 1:
+                    H2points.append(points)
+
+
+
+                Allpoints.append((x, y))
 
                 cv2.circle(frame, (x, y), 5, (0, 255, 0), -1) # Draws a point (x, y) will be the center of it
 
@@ -93,8 +110,29 @@ while True:
     # -------------------------
     cv2.imshow("Hand Landmarks", frame) # Displays current frame
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): # If the key  "q" is pressed it stops the loop
+    key = cv2.waitKey(1) & 0xFF
+
+    if key == ord('q'):
         break
+
+    if key == ord('p'):
+        print(points)
 
 cap.release() #Closes the webcam
 cv2.destroyAllWindows() #Closes all Cv widnows
+
+
+
+
+# class Hand:
+#     def __init__(self, points):
+#         self.points = points
+        
+#     def GetPoints(self,index):
+#         return np.array(self.points[index])
+        
+        
+#Getting points for creation of the gesture recognition
+print("\n")
+print(H1points)
+print()
