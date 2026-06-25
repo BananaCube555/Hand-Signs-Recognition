@@ -121,18 +121,8 @@ while True:
 cap.release() #Closes the webcam
 cv2.destroyAllWindows() #Closes all Cv widnows
 
-
-
-
-# class Hand:
-#     def __init__(self, points):
-#         self.points = points
-        
-#     def GetPoints(self,index):
-#         return np.array(self.points[index])
         
         
 #Getting points for creation of the gesture recognition
 print("\n")
-print(H1points)
 print()

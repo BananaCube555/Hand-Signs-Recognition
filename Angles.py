@@ -7,17 +7,7 @@ class Fingers:
         pass
 
 
-def StraightIndex():
-
-    p5 = np.array([100, 300]) # Possible finger possitions (landmarks)
-    p6 = np.array([100, 250])
-    p7 = np.array([100, 200])
-    p8 = np.array([100, 150])
-
-    v1 = p5 - p6 #  = [0, 50]  We subtract with p6 to check if there is bent there
-    v2 = p7 - p6 # = [0, -50]
-
-def SlightlyBentIndex():
+def Angle():
     p5 = np.array([100, 300])
     p6 = np.array([100, 250])
     p7 = np.array([100, 200])
