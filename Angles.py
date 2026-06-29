@@ -1,9 +1,9 @@
-import numpy as np
+# This script is not needed
+
+import numpy as np 
 
 
-class Fingers:
-    def __init__(self,p5,p6,p7,p8):
-        pass
+
 
 
 def Angle():
@@ -24,4 +24,34 @@ def Angle():
     angle = np.degrees(np.arccos(cos_theta)) #
 
     print(angle)
-    
+    #
+
+
+
+def Anglev2(self):
+        angles = []
+
+        for i in range(1, 19): # Its not 1,2 bc we of the line 21. If i = 21 then i + 2 would be incorrect
+
+            p1 = np.array(self.crHand[i])
+            p2 = np.array(self.crHand[i + 1])
+            p3 = np.array(self.crHand[i + 2])
+
+            v1 = p1 - p2
+            v2 = p3 - p2
+
+            l1 = np.linalg.norm(v1)# A norm  of a vector is its length. Linalg stand for linear algebra
+            l2 = np.linalg.norm(v2)
+
+            if l1 == 0 or l2 == 0: 
+                continue
+
+            cos_theta = np.dot(v1, v2) / (l1 * l2)
+            cos_theta = np.clip(cos_theta, -1.0, 1.0)
+
+            angle = np.degrees(np.arccos(cos_theta))
+            angles.append(angle)
+
+
+        print(angles)
+        return angles
