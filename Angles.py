@@ -2,56 +2,67 @@
 
 import numpy as np 
 
+Allpoints = [(296, 461), (368, 450), (436, 404), (486, 367), (529, 348), (385, 298), (407, 232), (417, 190), (425, 150), (340, 282), (343, 203), (346, 154), (348, 110), (296, 287), (290, 213), (290, 167), (290, 125), (257, 308), (233, 253), (216, 217), (205, 183)]
 
 
+class HandData:
+    def __init__(self):
+        self.crHand = []
+
+    def Hand(self):
+        self.crHand = Allpoints[:21]
 
 
-def Angle():
-    p5 = np.array([100, 300])
-    p6 = np.array([100, 250])
-    p7 = np.array([100, 200])
-
-    v1 = p5 - p6
-    v2 = p7 - p6
-
-    dot = np.dot(v1, v2) # This is so we can get in the future how similar their direction is but its not acurate since the output can be effected by the size of the vectors
-    len1 = np.linalg.norm(v1) # Get the length of the vector
-    len2 = np.linalg.norm(v2)
-
-    cos_theta = dot / (len1 * len2) # We devide the output of the dot product so we can find the 
-    cos_theta = np.clip(cos_theta, -1.0, 1.0) # We force cos_theta to be between -1 and 1
-
-    angle = np.degrees(np.arccos(cos_theta)) #
-
-    print(angle)
-    #
-
-
-
-def Anglev2(self):
+    def Angle(self):
         angles = []
+        angles2 = []
 
-        for i in range(1, 19): # Its not 1,2 bc we of the line 21. If i = 21 then i + 2 would be incorrect
+        for i in range(1, 18): # Its not 1,2 bc we of the line 21. If i = 21 then i + 2 would be incorrect
 
             p1 = np.array(self.crHand[i])
             p2 = np.array(self.crHand[i + 1])
+
             p3 = np.array(self.crHand[i + 2])
+
+            p4 = np.array(self.crHand[i + 3])
+            
 
             v1 = p1 - p2
             v2 = p3 - p2
 
-            l1 = np.linalg.norm(v1)# A norm  of a vector is its length. Linalg stand for linear algebra
+            v3 = p2 - p3
+            v4 = p4 - p3 
+
+            l1 = np.linalg.norm(v1) # A norm  of a vector is its length. Linalg stand for linear algebra
             l2 = np.linalg.norm(v2)
 
-            if l1 == 0 or l2 == 0: 
-                continue
+            #Angle 2
+            l3 = np.linalg.norm(v3)
+            l4 = np.linalg.norm(v4)
 
-            cos_theta = np.dot(v1, v2) / (l1 * l2)
-            cos_theta = np.clip(cos_theta, -1.0, 1.0)
+            if l1 == 0 or l2 == 0 or l3 == 0 or l4 == 0: # The diff of 2 points shouldnt be zero so this is a check line for the tracking 
+                continue     # Go up to the loop scipping the angle calc 
 
-            angle = np.degrees(np.arccos(cos_theta))
+            
+
+            cos_theta = np.dot(v1, v2) / (l1 * l2) # Mesures how align the vectors are and then we normalize by deviding by the whole length
+            cos_theta = np.clip(cos_theta, -1.0, 1.0) # Computers may return floats like 1.000000001 but with clip we get 1 or 0 exacly
+
+            cos_theta2 = np.dot(v3, v4) / (l3 * l4)
+            cos_theta2 = np.clip(cos_theta2, -1.0, 1.0)
+
+            angle = np.degrees(np.arccos(cos_theta)) # np.arccos coverts from cosine Θ to radiant, then np.deegres coverts it to deegres
             angles.append(angle)
 
+            angle2 = np.degrees(np.arccos(cos_theta2))
+            angles2.append(angle2)
 
+        
         print(angles)
-        return angles
+        print("\n")
+        print(angles2)
+        return angles, angles2
+
+p1 = HandData()
+p1.Hand()
+angles, angles2 = p1.Angle()
