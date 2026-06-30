@@ -3,6 +3,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 import numpy as np
+import time
 
 # -------------------------
 # Create detector
@@ -35,6 +36,12 @@ connections = [
     (13,17),(17,18),(18,19),(19,20),
     (0,17)
 ]
+
+frames = []
+countdown = False
+capture = False
+target_frames = 5
+session = None
 
 cv2.namedWindow("Hand Landmarks", cv2.WINDOW_NORMAL) # Lets you resize the widnow by code or by mouse
 cv2.resizeWindow("Hand Landmarks", 640, 480) # Sets widnow size
@@ -101,22 +108,42 @@ while True:
                     2 #You can adjust the thickness
                 )
 
-    # -------------------------
-    # Show
-    # -------------------------
-    cv2.imshow("Hand Landmarks", frame) # Displays current frame
+    if countdown:
+        elapsed = time.time() - start_time
+        remaining = 3 - int(elapsed)
+
+        if remaining > 0:
+            cv2.putText(frame, str(remaining), (300, 200),
+                        cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 255), 5)
+        else:
+            countdown = False
+            capture = True
+
+
+    if capture:
+        if len(Allpoints) == 21: #Check 
+            frames.append(Allpoints.copy())
+
+        if len(frames) >= target_frames:
+            print("\nSESSION DONE")
+            print(frames)
+
+            capture = False
+            frames = []
+
+    
+    cv2.imshow("Hand Landmarks", frame)
 
     key = cv2.waitKey(1) & 0xFF
 
-    if key == ord('q'): # If the key  "q" is pressed it stops the loop
+    if key == ord("1"):
+        countdown = True
+        start_time = time.time() 
+        frames = []
+
+    if key == ord("q"):
         break
 
-    if key == ord('p'):
-        print("\n")
-        print("\n")
-        
-        print("Hand 1:", H1points)
-        print("Hand 2:", H2points)
 
-cap.release() #Closes the webcam
+cap.release()  #Closes the webcam
 cv2.destroyAllWindows() #Closes all Cv widnows

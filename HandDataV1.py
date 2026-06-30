@@ -65,9 +65,9 @@ class HandData:
         print(angles2)
         return angles, angles2
     
-    def BentClassification():
+    def BentClassification(self):
         pass
-    
+
 
 
 p1 = HandData()
