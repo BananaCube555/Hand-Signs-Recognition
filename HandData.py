@@ -18,7 +18,7 @@ class HandData:
     def Angle(self):
         angles = []
         angles2 = []
-
+    
         for i in range(1, 18): # Its not 1,2 bc we of the line 21. If i = 21 then i + 2 would be incorrect
 
             p1 = np.array(self.crHand[i])

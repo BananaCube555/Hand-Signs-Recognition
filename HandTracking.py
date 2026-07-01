@@ -14,7 +14,7 @@ base_options = python.BaseOptions(
 
 options = vision.HandLandmarkerOptions( #Configures the settings
     base_options=base_options,#Path to the model , ...
-    num_hands=3  # Max hands that the model should detect 
+    num_hands=2   # Max hands that the model should detect 
 )
 
 detector = vision.HandLandmarker.create_from_options(options)#Makes an object with the above settings conf
@@ -40,7 +40,7 @@ connections = [
 frames = []
 countdown = False
 capture = False
-target_frames = 5
+target_frames = 3
 session = None
 
 cv2.namedWindow("Hand Landmarks", cv2.WINDOW_NORMAL) # Lets you resize the widnow by code or by mouse
@@ -48,7 +48,7 @@ cv2.resizeWindow("Hand Landmarks", 640, 480) # Sets widnow size
 
 while True:
 
-    ret, frame = cap.read() # Ret is Boolean(True/False) that tells us if the frame was succefully captured, frame is the actuall image that contains the pixel data, cap.rad captures the frame
+    ret, frame = cap.read() # Ret is Boolean(True/False) that tells us if the frame was succefully captured, frame is the actuall image that contains the pixel data, cap.read captures the frame
     if not ret: # Check if the frame was captured if not break the loop(live feed)
         break 
 
@@ -121,7 +121,7 @@ while True:
 
 
     if capture:
-        if len(Allpoints) == 21: #Check 
+        if len(H1points) == 21 or len(Allpoints) ==  42: #Check 
             frames.append(Allpoints.copy())
 
         if len(frames) >= target_frames:
@@ -133,6 +133,7 @@ while True:
 
     
     cv2.imshow("Hand Landmarks", frame)
+    
 
     key = cv2.waitKey(1) & 0xFF
 
@@ -147,3 +148,7 @@ while True:
 
 cap.release()  #Closes the webcam
 cv2.destroyAllWindows() #Closes all Cv widnows
+
+
+
+
