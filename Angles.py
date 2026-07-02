@@ -2,154 +2,178 @@
 
 import numpy as np 
 
+# HARD CODED FRAMES
+# frames = [
+#     [
+#         (556, 293), (509, 293), (463, 277), (428, 265), (401, 260),
+#         (471, 208), (447, 173), (432, 150), (420, 130), (495, 191),
+#         (477, 145), (465, 117), (456, 93), (522, 188), (511, 142),
+#         (503, 115), (496, 91), (550, 193), (547, 158), (543, 135),
+#         (539, 114), (180, 313), (221, 312), (263, 300), (297, 290),
+#         (323, 285), (256, 233), (281, 196), (294, 171), (305, 149),
+#         (234, 219), (250, 172), (260, 143), (268, 118), (208, 217),
+#         (217, 172), (224, 143), (229, 118), (180, 223), (175, 189),
+#         (171, 166), (170, 145)
+#     ],
+#     [
+#         (179, 312), (221, 312), (263, 299), (297, 290), (322, 284),
+#         (257, 233), (281, 196), (294, 172), (305, 150), (234, 218),
+#         (251, 172), (261, 143), (270, 119), (208, 216), (217, 171),
+#         (225, 143), (231, 118), (180, 222), (175, 188), (171, 165),
+#         (170, 143), (556, 291), (509, 292), (463, 276), (428, 264),
+#         (400, 261), (470, 208), (446, 173), (432, 150), (420, 130),
+#         (495, 191), (476, 145), (465, 117), (455, 93), (522, 187),
+#         (510, 142), (503, 114), (496, 90), (550, 192), (546, 157),
+#         (543, 134), (539, 113)
+#     ],
+#     [
+#         (556, 290), (510, 291), (464, 276), (429, 264), (401, 260),
+#         (471, 208), (447, 172), (432, 150), (420, 129), (495, 191),
+#         (477, 145), (465, 116), (455, 93), (522, 187), (510, 141),
+#         (503, 113), (495, 89), (550, 192), (547, 157), (543, 133),
+#         (539, 112), (179, 311), (221, 311), (263, 299), (297, 289),
+#         (321, 283), (256, 232), (281, 196), (295, 172), (305, 150),
+#         (234, 218), (251, 172), (261, 143), (269, 118), (208, 215),
+#         (217, 171), (224, 142), (230, 117), (180, 222), (175, 188),
+#         (171, 165), (170, 143)
+#     ]
+# ]
 
-frames = [
-    [
-        (556, 293), (509, 293), (463, 277), (428, 265), (401, 260),
-        (471, 208), (447, 173), (432, 150), (420, 130), (495, 191),
-        (477, 145), (465, 117), (456, 93), (522, 188), (511, 142),
-        (503, 115), (496, 91), (550, 193), (547, 158), (543, 135),
-        (539, 114), (180, 313), (221, 312), (263, 300), (297, 290),
-        (323, 285), (256, 233), (281, 196), (294, 171), (305, 149),
-        (234, 219), (250, 172), (260, 143), (268, 118), (208, 217),
-        (217, 172), (224, 143), (229, 118), (180, 223), (175, 189),
-        (171, 166), (170, 145)
-    ],
-    [
-        (179, 312), (221, 312), (263, 299), (297, 290), (322, 284),
-        (257, 233), (281, 196), (294, 172), (305, 150), (234, 218),
-        (251, 172), (261, 143), (270, 119), (208, 216), (217, 171),
-        (225, 143), (231, 118), (180, 222), (175, 188), (171, 165),
-        (170, 143), (556, 291), (509, 292), (463, 276), (428, 264),
-        (400, 261), (470, 208), (446, 173), (432, 150), (420, 130),
-        (495, 191), (476, 145), (465, 117), (455, 93), (522, 187),
-        (510, 142), (503, 114), (496, 90), (550, 192), (546, 157),
-        (543, 134), (539, 113)
-    ],
-    [
-        (556, 290), (510, 291), (464, 276), (429, 264), (401, 260),
-        (471, 208), (447, 172), (432, 150), (420, 129), (495, 191),
-        (477, 145), (465, 116), (455, 93), (522, 187), (510, 141),
-        (503, 113), (495, 89), (550, 192), (547, 157), (543, 133),
-        (539, 112), (179, 311), (221, 311), (263, 299), (297, 289),
-        (321, 283), (256, 232), (281, 196), (295, 172), (305, 150),
-        (234, 218), (251, 172), (261, 143), (269, 118), (208, 215),
-        (217, 171), (224, 142), (230, 117), (180, 222), (175, 188),
-        (171, 165), (170, 143)
-    ]
-]
 
+
+import numpy as np
 
 
 class HandData:
-    def __init__(self):
-        self.crHand = []
 
-        self.FinalAngles = []
-        
-        self.angles = []
+    def __init__(self, frames):
+        # frames = list of frames
+        # each frame = 21 landmarks (x,y)
+        self.frames = frames
 
-    def Angle(self):
+        # will store raw finger features per frame
+        # shape: [frame][5 fingers]
+        self.features = []
 
-        self.angles = []
+        # will store smoothed features
+        self.smoothed = []
 
-        
-        for f in range(len(frames)):
+    # ---------------------------------------------------
+    # CORE FUNCTION: angle between 3 points
+    # A = start, B = joint, C = end
+    # ---------------------------------------------------
+    def angle(self, a, b, c):
 
-            frame_angles = []
+        a = np.array(a)
+        b = np.array(b)
+        c = np.array(c)
 
-            # Calculate angles for this frame
-            for i in range(1, 18):
+        # create vectors
+        v1 = a - b
+        v2 = c - b
 
-                p1 = np.array(frames[f][i])
-                p2 = np.array(frames[f][i + 1])
-                p3 = np.array(frames[f][i + 2])
-                p4 = np.array(frames[f][i + 3])
+        # compute lengths (magnitude of vectors)
+        l1 = np.linalg.norm(v1)
+        l2 = np.linalg.norm(v2)
 
-                v1 = p1 - p2
-                v2 = p3 - p2
+        # avoid division by zero (bad detection cases)
+        if l1 == 0 or l2 == 0:
+            return 0
 
-                v3 = p2 - p3
-                v4 = p4 - p3 
+        # cosine formula
+        cos_theta = np.dot(v1, v2) / (l1 * l2)
 
-                l1 = np.linalg.norm(v1) # A norm  of a vector is its length. Linalg stand for linear algebra
-                l2 = np.linalg.norm(v2)
-                l3 = np.linalg.norm(v3)
-                l4 = np.linalg.norm(v4)
+        # clamp to avoid floating errors (like 1.0000001)
+        cos_theta = np.clip(cos_theta, -1.0, 1.0)
 
-                if l1 == 0 or l2 == 0 or l3 == 0 or l4 == 0:
-                    continue
+        # convert to degrees
+        return np.degrees(np.arccos(cos_theta))
 
-                cos_theta = np.dot(v1, v2) / (l1 * l2)
-                cos_theta = np.clip(cos_theta, -1.0, 1.0)
+    # ---------------------------------------------------
+    # EXTRACT FEATURES (THIS IS THE IMPORTANT PART)
+    # turns 21 points → 5 finger values
+    # ---------------------------------------------------
+    def extract(self):
 
-                cos_theta2 = np.dot(v3, v4) / (l3 * l4)
-                cos_theta2 = np.clip(cos_theta2, -1.0, 1.0)
+        self.features = []
 
-                angle1 = np.degrees(np.arccos(cos_theta))
-                angle2 = np.degrees(np.arccos(cos_theta2))
+        # loop through each frame (time step)
+        for frame in self.frames:
 
-                
-                frame_angles.append((angle1, angle2))
+            # -------------------------
+            # MediaPipe LANDMARK MAP:
+            # 0  = wrist
+            # 1-4  = thumb
+            # 5-8  = index
+            # 9-12 = middle
+            # 13-16 = ring
+            # 17-20 = pinky
+            # -------------------------
 
-            
-            self.angles.append(frame_angles)
+            wrist = frame[0]
 
-        
-        for frame_number, frame in enumerate(self.angles, start=1):
-            print(f"\n Frame {frame_number}")
-            for angle_pair in frame:
-                print(angle_pair)
+            # -------------------------
+            # FINGER ANGLES
+            # we measure bending using 3 points:
+            # wrist → base → tip
+            # -------------------------
 
-        return self.angles
+            # THUMB (special structure)
+            thumb = self.angle(frame[0], frame[2], frame[4])
 
-    def Smoothing(self):
+            # INDEX
+            index = self.angle(frame[0], frame[5], frame[8])
 
-        # Holds the final averaged frame.
-        # Example:
-        # [
-        #   (178.8,173.1),
-        #   (173.1,47.8),
-        #   ...
-        # ]
-        final = []
+            # MIDDLE
+            middle = self.angle(frame[0], frame[9], frame[12])
 
-        # Loop through every angle position.
-        #
-        # Example:
-        #
-        # Frame1[0] = (179,171)
-        # Frame2[0] = (177,178)
-        # Frame3[0] = (179,169)
-        #
-        # We average these together.
-        #
-        for angle_index in range(len(self.angles[0])):
+            # RING
+            ring = self.angle(frame[0], frame[13], frame[16])
 
-            angle1_values = []
-            angle2_values = []
+            # PINKY
+            pinky = self.angle(frame[0], frame[17], frame[20])
 
-            # Collect the same angle from every frame.
-            for frame in self.angles:
+            # store one frame feature vector
+            self.features.append([
+                thumb,
+                index,
+                middle,
+                ring,
+                pinky
+            ])
 
-                angle1_values.append(frame[angle_index][0])
-                angle2_values.append(frame[angle_index][1])
+        return self.features
 
-            # Average the collected values.
-            #
-            # This reduces noise from hand tracking.
-            average_angle1 = np.mean(angle1_values)
-            average_angle2 = np.mean(angle2_values)
+    # ---------------------------------------------------
+    # SMOOTHING FUNCTION
+    # reduces noise using moving average
+    # ---------------------------------------------------
+    def smooth(self, window=3):
 
-            final.append((average_angle1, average_angle2))
+        self.smoothed = []
 
-        print("\nFinal Averaged Frame:")
-        print(final)
+        # loop each frame
+        for i in range(len(self.features)):
 
-        return final
+            frame_result = []
 
+            # loop each finger (5 values)
+            for j in range(len(self.features[0])):
+
+                values = []
+
+                # look back last "window" frames
+                for k in range(max(0, i - window + 1), i + 1):
+
+                    values.append(self.features[k][j])
+
+                # average values over time
+                avg = np.mean(values)
+
+                frame_result.append(avg)
+
+            self.smoothed.append(frame_result)
+
+        return self.smoothed
 
     
-p1 = HandData()
-angles = p1.Angle()
-smoothed = p1.Smoothing()
