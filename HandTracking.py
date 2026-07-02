@@ -124,7 +124,7 @@ while True:
         if len(H1points) == 21 or len(Allpoints) ==  42: #Check 
             frames.append(Allpoints.copy())
 
-        if len(frames) >= target_frames:
+        if len(frames) == target_frames:
             print("\nSESSION DONE")
             print(frames)
 

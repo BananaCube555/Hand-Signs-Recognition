@@ -45,14 +45,15 @@ class HandData:
     def __init__(self):
         self.crHand = []
 
-        # One entry per frame
+        self.FinalAngles = []
+        
         self.angles = []
 
     def Angle(self):
 
         self.angles = []
 
-        # Loop through all captured frames
+        
         for f in range(len(frames)):
 
             frame_angles = []
@@ -96,14 +97,59 @@ class HandData:
 
         
         for frame_number, frame in enumerate(self.angles, start=1):
-            print(f"\nFrame {frame_number}")
+            print(f"\n Frame {frame_number}")
             for angle_pair in frame:
                 print(angle_pair)
 
         return self.angles
 
-    def Smoothing():
-        pass
+    def Smoothing(self):
+
+        # Holds the final averaged frame.
+        # Example:
+        # [
+        #   (178.8,173.1),
+        #   (173.1,47.8),
+        #   ...
+        # ]
+        final = []
+
+        # Loop through every angle position.
+        #
+        # Example:
+        #
+        # Frame1[0] = (179,171)
+        # Frame2[0] = (177,178)
+        # Frame3[0] = (179,169)
+        #
+        # We average these together.
+        #
+        for angle_index in range(len(self.angles[0])):
+
+            angle1_values = []
+            angle2_values = []
+
+            # Collect the same angle from every frame.
+            for frame in self.angles:
+
+                angle1_values.append(frame[angle_index][0])
+                angle2_values.append(frame[angle_index][1])
+
+            # Average the collected values.
+            #
+            # This reduces noise from hand tracking.
+            average_angle1 = np.mean(angle1_values)
+            average_angle2 = np.mean(angle2_values)
+
+            final.append((average_angle1, average_angle2))
+
+        print("\nFinal Averaged Frame:")
+        print(final)
+
+        return final
+
+
     
 p1 = HandData()
 angles = p1.Angle()
+smoothed = p1.Smoothing()
